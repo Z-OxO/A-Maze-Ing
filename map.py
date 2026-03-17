@@ -12,6 +12,9 @@
 
 ENTRY = 16
 EXIT = 17
+WALL = 15
+TO_VISIT = 1
+
 
 def search_exit(maze: list[list[int]]) -> tuple:
     y: int = 0
@@ -27,29 +30,38 @@ def search_exit(maze: list[list[int]]) -> tuple:
 def print_maze(maze: list[list[int]]) -> None:
     for y in range(len(maze)):
         for x in range(len(maze[y])):
-            if (maze[y][x] == 1):
-                print(f"🧱", end="")
-            elif (maze[y][x] == 16):
-                print(f"🟩", end="")
-            elif (maze[y][x] == 17):
-                print(f"🟥", end="")
+            if (maze[y][x] == WALL):
+                print(f"■", end=" ")
+            elif (maze[y][x] == ENTRY):
+                print(f"", end=" ")
+            elif (maze[y][x] == EXIT):
+                print(f"", end=" ")
+            elif (maze[y][x] == TO_VISIT):
+                print(f"🟧", end=" ")
             else:
                 print(" ", end=" ")
         print()
 
+def solv_search(maze: list[list[str]]) -> list[list[str]]:
+    for y in range(len(maze)):
+        for x in range(len(maze[y])):
+            if (maze[0][7] == 0):
+                maze[1][y] == 1
+    return (maze)
+
+
 def main() -> None:
     maze: list[list[int]] = [
-           [1,1,1,1,1,ENTRY,1,1],
-           [1,0,0,0,0,0,0,1],
-           [1,0,1,0,1,0,0,1],
-           [1,0,1,0,1,0,1,1],
-           [1,0,1,0,0,1,0,1],
-           [1,0,1,0,0,0,1,1],
-           [1,0,1,1,1,0,0,1],
-           [1,1,1,1,1,1,1,EXIT]]
-    
-    print(f"{search_exit(maze)}")
-    print_maze(f"{print_maze(maze)}")
+           [15, 15, 15, 15, 15, 15, 15, 15],
+           [15, 0, 0, 0, 0, 0, ENTRY, 15],
+           [15, 0, 15, 0, 15, 0, 0, 15],
+           [15, 0, 15, 0, 15, 0, 0, 15],
+           [15, 0, 15, 0, 15, 15, 15, 15],
+           [15, 0, 15, 0, 0, 0, 15, 15],
+           [15, 0, 15, 15, 15, 0, EXIT, 15],
+           [15, 15, 15, 15, 15, 15, 15, 15]]
+    maze = solv_search(maze)
+    print_maze(maze)
     
 
 
