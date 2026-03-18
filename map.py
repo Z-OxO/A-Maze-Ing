@@ -25,22 +25,24 @@ def search_exit(maze: list[list[int]]) -> tuple:
             if (maze[y][x] == 17):
                 return y,x
 
-    return(-1, -1)
+    return (-1, -1)
+
 
 def print_maze(maze: list[list[int]]) -> None:
     for y in range(len(maze)):
         for x in range(len(maze[y])):
             if (maze[y][x] == WALL):
-                print(f"■", end=" ")
+                print("■", end=" ")
             elif (maze[y][x] == ENTRY):
-                print(f"", end=" ")
+                print("🟥", end=" ")
             elif (maze[y][x] == EXIT):
-                print(f"", end=" ")
+                print("🟩", end=" ")
             elif (maze[y][x] == TO_VISIT):
-                print(f"🟧", end=" ")
+                print("🟧", end=" ")
             else:
                 print(" ", end=" ")
         print()
+
 
 def solv_search(maze: list[list[str]]) -> list[list[str]]:
     for y in range(len(maze)):
@@ -62,7 +64,6 @@ def main() -> None:
            [15, 15, 15, 15, 15, 15, 15, 15]]
     maze = solv_search(maze)
     print_maze(maze)
-    
 
 
 if __name__ == "__main__":
