@@ -29,20 +29,30 @@ def get_value(key) -> str | None:
     return (None)
 
 
-def add_conf() -> str:
+def parsing() -> str:
     if (len(sys.argv) < 2):
         print("Error !")
         return
     try:
         width: int = int(get_value("WIDTH"))
         height: int = int(get_value("HEIGHT"))
-        output_file: str = str(get_value("OUTPfUT_FILE"))
-        value: Conf = Conf(width, height, output_file)
-    except TypeError:
-        print("Error: Key not found !")
+        output_file: str = str(get_value("OUTPUT_FILE"))
+        entry: tuple[int, int] = (get_value("ENTRY"))
+        entry.split(',')
+        exit_maze: tuple[int, int] = get_value("EXIT")
+        exit_maze.split(',')
+        perfect: bool = (True if get_value("PERFECT") == "True" else
+                         (False if get_value("PERFECT") == "False" else None))
+        if (perfect is None):
+            print("Error : perfect key !")
+            return (None)
+        value: Conf = Conf(width, height, output_file, entry, exit_maze,
+                           perfect)
+    except (TypeError, ValueError):
+        print("Error: Key not found or value error !")
         return
     return (value)
 
 
 if __name__ == "__main__":
-    add_conf()
+    parsing()
