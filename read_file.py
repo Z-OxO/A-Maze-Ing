@@ -39,7 +39,7 @@ def add_conf() -> str:
         output_file: str = str(get_value("OUTPfUT_FILE"))
         value: Conf = Conf(width, height, output_file)
     except TypeError:
-        print("Error: clee non trouve")
+        print("Error: Key not found !")
         return
     return (value)
 
