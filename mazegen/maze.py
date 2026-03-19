@@ -1,13 +1,16 @@
-from random import choices
-from ..types import map_type, Cell
+from random import Random
+from src.types import Cell, map_type
 
 
 class Maze:
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int, seed: int = 42):
         self.width: int = width
         self.height: int = height
         self.map: map_type = self._init_map()
-        self._DIRS = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+        self.random = Random(seed)
+        self.entry = Cell(0, 0)
+        self.exit_ = Cell(width - 1, height - 1)
+        self._DIRS_OFFSETS = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
     def __repr__(self) -> str:
         return "\n".join("".join(f"{c:X}" for c in row) for row in self.map)
@@ -33,7 +36,7 @@ class Maze:
 
     def _create_wall(self, curr_cell: Cell, next_cell: Cell) -> None:
         dx, dy = next_cell.x - curr_cell.x, next_cell.y - curr_cell.y
-        bit = self._DIRS.index((dx, dy))
+        bit = self._DIRS_OFFSETS.index((dx, dy))
         self.map[curr_cell.y][curr_cell.x] &= ~(1 << bit)
         self.map[next_cell.y][next_cell.x] &= ~(1 << (bit ^ 2))
 
@@ -48,7 +51,7 @@ class Maze:
                 stack.pop()
                 continue
 
-            next_cell = choices(neighbor_available)[0]
+            next_cell = self.random.choices(neighbor_available)[0]
             self._create_wall(stack[-1], next_cell)
             visited.add(next_cell)
             stack.append(next_cell)
