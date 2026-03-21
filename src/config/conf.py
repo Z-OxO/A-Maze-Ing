@@ -119,9 +119,9 @@ def parsing() -> None:
         y_exit: int = value.get_exit_maze()[1]
 
         if not (0 <= x_exit <= width):
-            raise ValueError("The entrance is outside the maze")
+            raise ValueError("The exit is located outside the maze.")
         if not (0 <= y_exit <= height):
-            raise ValueError("The entrance is outside the maze")
+            raise ValueError("The exit is located outside the maze.")
 
     except (TypeError, ValueError, FileNotFoundError) as e:
         print(f"Error: {e}")
