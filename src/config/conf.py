@@ -44,15 +44,16 @@ def get_value(key: str) -> str | None:
                     if (len(parts) == 2):
                         return (parts[1].strip())
     except FileNotFoundError:
-        raise ValueError("File not found !")
+        raise ValueError("configuration file not found !")
     return (None)
 
 
 def parsing() -> None:
     if (len(sys.argv) < 2):
-        print("Error !")
+        print("Error: missing configuration file argument")
         return
     try:
+        # retrieving data from the file
         width_str: str = str(get_value("WIDTH"))
         height_str: str = str(get_value("HEIGHT"))
         output_file_str: str = str(get_value("OUTPUT_FILE"))
@@ -60,6 +61,7 @@ def parsing() -> None:
         exit_maze_str: str = str(get_value("EXIT"))
         perfect_str: str = str(get_value("PERFECT"))
 
+        # Management error
         if (
             width_str == "None"
             or height_str == "None"
@@ -77,13 +79,6 @@ def parsing() -> None:
             raise ValueError("The inlet must not be "
                              "in the same place as the outlet.")
 
-        width: int = int(width_str)
-        height: int = int(height_str)
-        output_file: str = (output_file_str)
-
-        entry: tuple[int, int] = tuple(map(int, entry_str.split(',')))
-        exit_maze: tuple[int, int] = tuple(map(int, exit_maze_str.split(',')))
-
         if (perfect_str == "True"):
             perfect: bool = True
         elif (perfect_str == "False"):
@@ -91,11 +86,22 @@ def parsing() -> None:
         else:
             raise ValueError("Invalid PERFECT value")
 
+        # conversion
+
+        width: int = int(width_str)
+        height: int = int(height_str)
+        output_file: str = (output_file_str)
+
+        entry: tuple[int, int] = tuple(map(int, entry_str.split(',')))
+        exit_maze: tuple[int, int] = tuple(map(int, exit_maze_str.split(',')))
+
+        open(output_file)
+
         value: Conf = Conf(width, height, output_file, entry, exit_maze,
                            perfect)
         print(value.get_entry())
 
-    except (TypeError, ValueError) as e:
+    except (TypeError, ValueError, FileNotFoundError) as e:
         print(f"Error: {e}")
         return
 
