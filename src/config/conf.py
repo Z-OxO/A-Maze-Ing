@@ -92,8 +92,13 @@ def parsing() -> None:
         height: int = int(height_str)
         output_file: str = (output_file_str)
 
-        entry: tuple[int, int] = tuple(map(int, entry_str.split(',')))
-        exit_maze: tuple[int, int] = tuple(map(int, exit_maze_str.split(',')))
+        parts_entry = entry_str.split(',')
+        parts_exit = exit_maze_str.split(',')
+
+        entry: tuple[int, int] = (int(parts_entry[0]),
+                                  int(parts_entry[1]))
+        exit_maze: tuple[int, int] = (int(parts_exit[0]),
+                                      int(parts_exit[1]))
 
         open(output_file)
 
