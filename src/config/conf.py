@@ -109,7 +109,7 @@ def parsing() -> None:
             raise ValueError("The entrance is outside the maze")
         if not (0 <= y_enty <= height):
             raise ValueError("The entrance is outside the maze")
-        
+
         x_exit: int = value.get_exit_maze()[0]
         y_exit: int = value.get_exit_maze()[1]
 
