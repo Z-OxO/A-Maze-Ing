@@ -14,7 +14,7 @@ class Conf():
         self.__perfect = perfect
 
         if (output_file == "None"):
-            print("Error: 'OUTPUT_FILE' not found !")
+            raise ValueError("'OUTPUT_FILE' not found !")
         else:
             self.__output_file = output_file
 
@@ -37,7 +37,7 @@ class Conf():
         return (self.__perfect)
 
 
-def get_value(key) -> str | None:
+def get_value(key: str) -> str | None:
     try:
         with open(sys.argv[1], "r") as file:
             for line in file:
@@ -48,7 +48,7 @@ def get_value(key) -> str | None:
                     if (len(parts) == 2):
                         return (parts[1].strip())
     except FileNotFoundError:
-        pass
+        raise ValueError("File not found !")
     return (None)
 
 
@@ -57,23 +57,43 @@ def parsing() -> None:
         print("Error !")
         return
     try:
-        width: int = int(get_value("WIDTH"))
-        height: int = int(get_value("HEIGHT"))
-        output_file: str = str(get_value("OUTPUT_FILE"))
-        entry: tuple[int, int] = (get_value("ENTRY"))
-        entry.split(',')
-        exit_maze: tuple[int, int] = get_value("EXIT")
-        exit_maze.split(',')
-        perfect: bool = (True if get_value("PERFECT") == "True" else
-                         (False if get_value("PERFECT") == "False" else None))
-        if (perfect is None):
-            print("Error : perfect key !")
-            return (None)
+        width_str: str = str(get_value("WIDTH"))
+        height_str: str = str(get_value("HEIGHT"))
+        output_file_str: str = str(get_value("OUTPUT_FILE"))
+        entry_str: str = str(get_value("ENTRY"))
+        exit_maze_str: str = str(get_value("EXIT"))
+        perfect_str: str = str(get_value("PERFECT"))
+
+        if (None in (width_str, height_str, output_file_str,
+                     entry_str, exit_maze_str, perfect_str)):
+            raise ValueError("Missing keys")
+
+        if (entry_str.count(',') != 1) or (exit_maze_str.count(',')) != 1:
+            raise ValueError("ENTRY or EXIT must be in format 'x,y'")
+
+        if (entry_str == exit_maze_str):
+            raise ValueError("The inlet must not be "
+                             "in the same place as the outlet.")
+
+        width: int = int(width_str)
+        height: int = int(height_str)
+        output_file: str = (output_file_str)
+
+        entry: tuple[int, int] = tuple(map(int, entry_str.split(',')))
+        exit_maze: tuple[int, int] = tuple(map(int, exit_maze_str.split(',')))
+
+        if (perfect_str == "True"):
+            perfect: bool = True
+        elif (perfect_str == "False"):
+            perfect = False
+        else:
+            raise ValueError("Invalid PERFECT value")
+
         value: Conf = Conf(width, height, output_file, entry, exit_maze,
                            perfect)
-        print(value.get_entry())
-    except (TypeError, ValueError):
-        print("Error: Key not found or value error !")
+
+    except (TypeError, ValueError) as e:
+        print(f"Error: {e}")
         return
 
 
