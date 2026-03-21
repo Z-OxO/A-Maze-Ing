@@ -12,11 +12,7 @@ class Conf():
         self.__entry = entry
         self.__exit_maze = exit_maze
         self.__perfect = perfect
-
-        if (output_file == "None"):
-            raise ValueError("'OUTPUT_FILE' not found !")
-        else:
-            self.__output_file = output_file
+        self.__output_file = output_file
 
     def get_width(self) -> int:
         return (self.__width)
@@ -64,8 +60,14 @@ def parsing() -> None:
         exit_maze_str: str = str(get_value("EXIT"))
         perfect_str: str = str(get_value("PERFECT"))
 
-        if (None in (width_str, height_str, output_file_str,
-                     entry_str, exit_maze_str, perfect_str)):
+        if (
+            width_str == "None"
+            or height_str == "None"
+            or output_file_str == "None"
+            or entry_str == "None"
+            or exit_maze_str == "None"
+            or perfect_str == "None"
+        ):
             raise ValueError("Missing keys")
 
         if (entry_str.count(',') != 1) or (exit_maze_str.count(',')) != 1:
@@ -91,6 +93,7 @@ def parsing() -> None:
 
         value: Conf = Conf(width, height, output_file, entry, exit_maze,
                            perfect)
+        print(value.get_entry())
 
     except (TypeError, ValueError) as e:
         print(f"Error: {e}")
