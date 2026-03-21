@@ -99,11 +99,27 @@ def parsing() -> None:
 
         value: Conf = Conf(width, height, output_file, entry, exit_maze,
                            perfect)
-        print(value.get_entry())
+
+        # verification that the entrance is indeed in the maze
+
+        x_enty: int = value.get_entry()[0]
+        y_enty: int = value.get_entry()[1]
+
+        if not (0 <= x_enty <= width):
+            raise ValueError("The entrance is outside the maze")
+        if not (0 <= y_enty <= height):
+            raise ValueError("The entrance is outside the maze")
+        
+        x_exit: int = value.get_exit_maze()[0]
+        y_exit: int = value.get_exit_maze()[1]
+
+        if not (0 <= x_exit <= width):
+            raise ValueError("The entrance is outside the maze")
+        if not (0 <= y_exit <= height):
+            raise ValueError("The entrance is outside the maze")
 
     except (TypeError, ValueError, FileNotFoundError) as e:
         print(f"Error: {e}")
-        return
 
 
 if __name__ == "__main__":
