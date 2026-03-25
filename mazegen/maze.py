@@ -12,7 +12,7 @@ class Maze:
         self.exit_ = Cell(width - 1, height - 1)
         self._DIRS_OFFSETS = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return "\n".join("".join(f"{c:X}" for c in row) for row in self.map)
 
     def _init_map(self) -> map_type:
