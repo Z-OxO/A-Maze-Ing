@@ -1,5 +1,4 @@
-"""Configuration parser for maze generator."""
-import sys
+from src.types import Cell
 
 
 class Config:
@@ -23,13 +22,13 @@ class Config:
         raw = self._load(path)
         self._check_required(raw)
 
-        self.width = self._int(raw, "WIDTH", min_val=1)
-        self.height = self._int(raw, "HEIGHT", min_val=1)
-        self.output_file = self._string(raw, "OUTPUT_FILE")
-        self.entry = self._coord(raw, "ENTRY")
-        self.exit = self._coord(raw, "EXIT")
-        self.perfect = self._bool(raw, "PERFECT")
-        self.seed = self._int(raw, "SEED") if "SEED" in raw else None
+        self.width: int = self._int(raw, "WIDTH", min_val=1)
+        self.height: int = self._int(raw, "HEIGHT", min_val=1)
+        self.output_file: int = self._string(raw, "OUTPUT_FILE")
+        self.entry: Cell = self._coord(raw, "ENTRY")
+        self.exit_: Cell = self._coord(raw, "EXIT")
+        self.perfect: bool = self._bool(raw, "PERFECT")
+        self.seed: int = self._int(raw, "SEED") if "SEED" in raw else None
 
         self._validate_bounds()
         self._validate_different()
@@ -37,16 +36,19 @@ class Config:
     def _load(self, path: str) -> dict[str, str]:
         """Read config file, skip comments/blanks, return key→value dict."""
         try:
-            result = {}
+            result: dict[str, str] = {}
             with open(path) as f:
                 for lineno, line in enumerate(f, 1):
                     line = line.strip()
                     if not line or line.startswith("#"):
                         continue
                     if "=" not in line:
-                        raise ValueError(f"line {lineno}: expected KEY=VALUE, got {line!r}")
+                        raise ValueError(
+                            f"line {lineno}: expected KEY=VALUE, got {line!r}"
+                        )
                     key, value = line.split("=")
-                    # Not sure ??? Remove whitespace or no maybe of to check and raise an error
+                    # Not sure ??? Remove whitespace or no maybe of to check
+                    # and raise an error
                     result[key.strip()] = value.strip()
             return result
         except FileNotFoundError:
@@ -56,16 +58,20 @@ class Config:
         """Raise if any required key is missing."""
         missing = self._REQUIRED - raw.keys()
         if missing:
-            raise ValueError(f"missing required key(s): {', '.join(sorted(missing))}")
+            raise ValueError(
+                f"missing required key(s): {', '.join(sorted(missing))}"
+            )
 
-    def _int(self, raw: dict[str, str], key: str, min_val: int | None = None) -> int:
+    def _int(
+        self, raw: dict[str, str], key: str, min_val: int | None = None
+    ) -> int:
         """Parse key as integer, optionally with minimum value."""
         try:
             value = int(raw[key])
         except ValueError:
             raise ValueError(f"{key}: expected integer, got {raw[key]!r}")
         if min_val is not None and value < min_val:
-            raise ValueError(f"{key}: must be >= {min_val}, got {value}")
+            raise ValueError(f"{key}: must be >= {min_val}, got {value!r}")
         return value
 
     def _bool(self, raw: dict[str, str], key: str) -> bool:
@@ -77,16 +83,18 @@ class Config:
             return False
         raise ValueError(f"{key}: expected 'True' or 'False', got {value!r}")
 
-    def _coord(self, raw: dict[str, str], key: str) -> tuple[int, int]:
+    def _coord(self, raw: dict[str, str], key: str) -> Cell:
         """Parse key as 'x,y' coordinate tuple."""
         value = raw[key]
         parts = value.split(",")
         if len(parts) != 2:
             raise ValueError(f"{key}: expected format 'x,y', got {value!r}")
         try:
-            return int(parts[0].strip()), int(parts[1].strip())
+            return Cell(int(parts[0].strip()), int(parts[1].strip()))
         except ValueError:
-            raise ValueError(f"{key}: coordinates must be integers, got {value!r}")
+            raise ValueError(
+                f"{key}: coordinates must be integers, got {value!r}"
+            )
 
     def _string(self, raw: dict[str, str], key: str) -> str:
         """Return non-empty string value for key."""
@@ -96,16 +104,23 @@ class Config:
         return value
 
     def _validate_bounds(self) -> None:
-        """Ensure entry and exit are inside maze dimensions and validate height and width."""
-        for label, (x, y) in (("ENTRY", self.entry), ("EXIT", self.exit)):
+        """
+        Ensure entry and exit are inside maze dimensions and validate
+        height and width.
+        """
+        for label, (x, y) in (("ENTRY", self.entry), ("EXIT", self.exit_)):
             if not (0 <= x < self.width):
-                raise ValueError(f"{label}: x={x} out of bounds (0..{self.width - 1})")
+                raise ValueError(
+                    f"{label}: x={x} out of bounds (0..{self.width - 1})"
+                )
             if not (0 <= y < self.height):
-                raise ValueError(f"{label}: y={y} out of bounds (0..{self.height - 1})")
+                raise ValueError(
+                    f"{label}: y={y} out of bounds (0..{self.height - 1})"
+                )
 
     def _validate_different(self) -> None:
         """Ensure entry and exit are not the same cell."""
-        if self.entry == self.exit:
+        if self.entry == self.exit_:
             raise ValueError("ENTRY and EXIT must be different cells")
 
     def __repr__(self) -> str:
