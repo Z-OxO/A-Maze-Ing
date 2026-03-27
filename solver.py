@@ -1,15 +1,14 @@
 from collections import deque
 
-directions = [
+directions: list[tuple[int, int, str]] = [
     (0, -1, 'N'),
     (1, 0, 'E'),
     (0, 1, 'S'),
     (-1, 0, 'W')
 ]
-# Check Wall
 
 
-def direction_maze(cell, direction):
+def direction_maze(cell: int, direction: str) -> bool:
     if (direction == 'N'):
         return not (cell & 1)
     if (direction == 'E'):
@@ -18,9 +17,11 @@ def direction_maze(cell, direction):
         return not (cell & 4)
     if (direction == 'W'):
         return not (cell & 8)
+    return (False)
 
 
-def can_move(maze: list[list[int]], x, y, nx, ny, direction):
+def can_move(maze: list[list[int]], x: int, y: int,
+             nx: int, ny: int, direction: str) -> bool:
     cell = maze[y][x]
 
     if (not direction_maze(cell, direction)):
@@ -32,18 +33,22 @@ def can_move(maze: list[list[int]], x, y, nx, ny, direction):
     return (direction_maze(neighbor, opposite[direction]))
 
 
-def solver_back(maze: list[list[int]], start, end):
-    width: int = (len(maze))
+def solver_back(maze: list[list[int]], start: tuple[int, int],
+                end: tuple[int, int]) -> None | list[tuple[int, int]]:
+    width: int = (len(maze[0]))
     height: int = len(maze)
 
-    queue = deque()
+    queue: deque[tuple[tuple[int, int], list[tuple[int, int]]]] = deque()
     queue.append((start, [start]))
 
     visited = set()
     visited.add(start)
 
     while (queue):
-        (x, y), path = queue.popleft()
+        node: tuple[int, int]
+        path: list[tuple[int, int]]
+        node, path = queue.popleft()
+        x, y = node
 
         if ((x, y) == end):
             return (path)
@@ -59,7 +64,7 @@ def solver_back(maze: list[list[int]], start, end):
     return (None)
 
 
-def path_to_moves(path):
+def path_to_moves(path: list[tuple[int, int]]) -> str:
     moves: str = ""
 
     for i in range(1, len(path)):
@@ -75,7 +80,7 @@ def path_to_moves(path):
         elif y2 == y1 - 1:
             moves += 'N'
 
-    return moves
+    return (moves)
 
 
 def display_maze_ascii(maze, path=None, start=None, end=None):
@@ -125,7 +130,7 @@ if __name__ == "__main__":
         [15, 8, 8, 8, 15]
     ]
 
-start = (1, 1)
+start = (3, 1)
 end = (2, 4)
 
 path = solver_back(maze, start, end)
