@@ -36,7 +36,7 @@ def can_move(maze: list[list[int]], x: int, y: int,
 def solver_back(maze: list[list[int]], start: tuple[int, int],
                 end: tuple[int, int]) -> None | list[tuple[int, int]]:
     width: int = (len(maze[0]))
-    height: int = len(maze)
+    height: int = (len(maze))
 
     queue: deque[tuple[tuple[int, int], list[tuple[int, int]]]] = deque()
     queue.append((start, [start]))
@@ -123,15 +123,15 @@ def display_maze_ascii(maze, path=None, start=None, end=None):
 if __name__ == "__main__":
 
     maze = [
-        [15, 15, 15, 15, 15],
+        [15, 1, 1, 1, 8],
         [15, 9, 5, 1, 15],
         [15, 8, 1, 2, 15],
         [15, 4, 1, 8, 15],
         [15, 8, 8, 8, 15]
     ]
 
-start = (3, 1)
-end = (2, 4)
+start = (4, 1)
+end = (2, 3)
 
 path = solver_back(maze, start, end)
 display_maze_ascii(maze, path, start, end)
