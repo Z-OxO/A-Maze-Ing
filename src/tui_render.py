@@ -5,7 +5,6 @@ from rich.panel import Panel
 from rich.style import Style
 from rich.table import Table
 from rich.text import Text
-from typing import Callable
 import queue
 import threading
 
@@ -14,18 +13,10 @@ from src.types import Cell, DIRECTION
 
 
 class TUIRenderer:
-    """Terminal UI renderer for A-Maze-ing.
-
-    Args:
-        maze: The Maze instance to render.
-
-    Usage::
-        renderer = TUIRenderer(maze)
-        renderer.on_toggle_path = lambda: solver.toggle()
-        renderer.run()
-    """
+    """Terminal UI renderer for A-Maze-ing."""
 
     def __init__(self, maze: Maze) -> None:
+        """Initialize renderer with maze."""
         self._console = Console()
         self._maze = maze
 
@@ -39,11 +30,11 @@ class TUIRenderer:
 
         self._WALL = "██"
         self._PATH = "  "
+        self._PATH_MARKER = "██"
 
         self.__palette_idx: int = 0
         self.__v_offset: int = 0
         self.__view_height: int = 1
-        self.__path_visible: bool = False
         self.__running: bool = True
         self.__status: str = "Ready"
 
@@ -53,9 +44,6 @@ class TUIRenderer:
         self.__cache_color: str = ""
 
         self.__key_queue: queue.Queue[str] = queue.Queue()
-
-        self.on_toggle_path: Callable = lambda: None
-        self.on_solve: Callable = lambda: None
 
     def run(self) -> None:
         """Start the blocking render + input loop."""
@@ -70,7 +58,7 @@ class TUIRenderer:
             while self.__running:
                 try:
                     key = self.__key_queue.get(timeout=0.1)
-                    while not self.__key_queue.empty():  # drain spam
+                    while not self.__key_queue.empty():
                         key = self.__key_queue.get_nowait()
                     self._handle_key(key)
                     self.__dirty = True
@@ -84,24 +72,24 @@ class TUIRenderer:
                     self.__dirty = False
 
     def __read_keys(self) -> None:
+        """Read keys in background thread."""
         while self.__running:
             self.__key_queue.put(readchar.readkey())
 
     def _handle_key(self, key: str) -> None:
+        """Handle keyboard input."""
         match key:
             case "r" | "R":
                 self.__status = "Generating..."
                 self._maze.gen()
                 self.__v_offset = 0
-                self.__path_visible = False
                 self.__row_cache = None
                 self.__status = "New maze generated"
             case "p" | "P":
-                self.__path_visible = not self.__path_visible
-                self.on_toggle_path()
-                self.__status = (
-                    "Path ON" if self.__path_visible else "Path OFF"
-                )
+                self._maze.toggle_path()
+                self.__row_cache = None
+                path = self._maze.get_path()
+                self.__status = "Path ON" if path else "Path OFF"
             case "w" | "W" | readchar.key.UP:
                 self.__v_offset = max(0, self.__v_offset - 1)
             case "s" | "S" | readchar.key.DOWN:
@@ -121,10 +109,10 @@ class TUIRenderer:
                 self.__running = False
 
     def _build_renderable(self) -> Panel:
+        """Build the main renderable panel."""
         color, _ = self._PALETTES[self.__palette_idx]
         width = self._console.size.width
         height = self._console.size.height
-        # for menu offset
         self.__view_height = max(1, height - 9)
         needed = 2 * (2 * self._maze.width + 1) + 10
 
@@ -146,6 +134,7 @@ class TUIRenderer:
 
     @staticmethod
     def _render_too_narrow(got: int, need: int) -> Group:
+        """Render warning when terminal is too narrow."""
         return Group(
             Text(""),
             Text("⚠  terminal too narrow", justify="center", style="bold red"),
@@ -168,7 +157,7 @@ class TUIRenderer:
         )
 
     def _render_maze(self, color: str) -> Text:
-        """Slice cached row-Texts — no markup parsing on scroll."""
+        """Render the maze with optional path."""
         if self.__row_cache is None or self.__cache_color != color:
             self.__row_cache = self._build_row_cache(color)
             self.__cache_color = color
@@ -184,32 +173,40 @@ class TUIRenderer:
         return out
 
     def _build_row_cache(self, color: str) -> list[Text]:
-        """
-        Build full ascii map as list[Text] using Style objects called
-        once per gen/color.
-        """
+        """Build cached rows for maze rendering."""
         W, H = self._maze.width, self._maze.height
+        path_set = set()
+        current_path = self._maze.get_path()
+        if current_path:
+            path_set = {(c.x, c.y) for c in current_path}
+
         s = {
             "wall": Style(color=color),
             "blue": Style(color="blue", bold=True),
             "green": Style(color="green", bold=True),
             "red": Style(color="red", bold=True),
+            "path": Style(color="dark_sea_green2", blink=True),
         }
         WALL_CELL = (self._WALL, s["wall"])
         PATH_CELL = (self._PATH, None)
+        SOLVED_CELL = (self._PATH_MARKER, s["path"])
 
-        # Add style to each chr
         ascii_map: list[list[tuple[str, Style | None]]] = [
             [WALL_CELL] * (2 * W + 1) for _ in range(2 * H + 1)
         ]
+
         for y in range(H):
             for x in range(W):
                 cell_hex: int = self._maze.map_[y][x]
-                ascii_map[2 * y + 1][2 * x + 1] = (
-                    (self._WALL, s["blue"])
-                    if Cell(x, y) in self._maze.pattern
-                    else PATH_CELL
-                )
+                is_path = (x, y) in path_set
+
+                if Cell(x, y) in self._maze.pattern:
+                    ascii_map[2 * y + 1][2 * x + 1] = (self._WALL, s["blue"])
+                elif is_path:
+                    ascii_map[2 * y + 1][2 * x + 1] = SOLVED_CELL
+                else:
+                    ascii_map[2 * y + 1][2 * x + 1] = PATH_CELL
+
                 if not (cell_hex & DIRECTION.NORTH.value):
                     ascii_map[2 * y][2 * x + 1] = PATH_CELL
                 if not (cell_hex & DIRECTION.EAST.value):
@@ -233,14 +230,14 @@ class TUIRenderer:
         return rows
 
     def _render_menu(self, color: str) -> Table:
+        """Render the control menu."""
         table = Table.grid(expand=False, padding=(0, 3))
         for _ in range(4):
             table.add_column(justify="center")
+        path_status = "Path ON" if self._maze.get_path() else "Path OFF"
         table.add_row(
             self._key("R", "Regen", color),
-            self._key(
-                "P", "Path ON" if self.__path_visible else "Path OFF", color
-            ),
+            self._key("P", path_status, color),
             self._key("C", self._PALETTES[self.__palette_idx][1], color),
             self._key("Q", "Quit", color),
         )
@@ -248,6 +245,7 @@ class TUIRenderer:
 
     @staticmethod
     def _key(k: str, label: str, color: str) -> Text:
+        """Render a key label."""
         t = Text()
         t.append(f" {k} ", style=f"bold black on {color}")
         t.append(f" {label}", style="dim")
