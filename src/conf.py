@@ -1,4 +1,4 @@
-from src.types import Cell
+from src.maze_types import Cell
 
 
 class Config:
@@ -24,12 +24,13 @@ class Config:
 
         self.width: int = self._int(raw, "WIDTH", min_val=1)
         self.height: int = self._int(raw, "HEIGHT", min_val=1)
-        self.output_file: int = self._string(raw, "OUTPUT_FILE")
+        self.output_file: str = self._string(raw, "OUTPUT_FILE")
         self.entry: Cell = self._coord(raw, "ENTRY")
         self.exit_: Cell = self._coord(raw, "EXIT")
         self.perfect: bool = self._bool(raw, "PERFECT")
-        self.seed: int = self._int(raw, "SEED") if "SEED" in raw else None
-
+        self.seed: int | None = (
+            self._int(raw, "SEED") if "SEED" in raw else None
+        )
         self._validate_bounds()
         self._validate_different()
 
@@ -127,7 +128,7 @@ class Config:
         """Return string representation of Config."""
         return (
             f"Config(width={self.width}, height={self.height}, "
-            f"entry={self.entry}, exit={self.exit}, "
+            f"entry={self.entry}, exit={self.exit_}, "
             f"perfect={self.perfect}, output_file={self.output_file!r}, "
             f"seed={self.seed})"
         )

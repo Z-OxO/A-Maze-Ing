@@ -1,37 +1,48 @@
 from random import Random
-from src.types import Cell, map_type
+from src.maze_types import Cell, map_type
 from src.conf import Config
+from collections import deque
 
 
 class Maze:
+    """
+    Generate and solve perfect mazes using recursive backtracker algorithm.
+    """
+
     def __init__(self, cfg: Config):
+        """Initialize maze with configuration."""
         self.width: int = cfg.width
         self.height: int = cfg.height
         self.map_: map_type = self._init_map()
         self.random = Random(cfg.seed)
         self.entry = cfg.entry
         self.exit_ = cfg.exit_
-        self.pattern = self._create_pattern()  # 42 pattern relative pos
+        self.pattern = self._create_pattern()
         self._DIRS_OFFSETS = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+        self._DIRECTION_TO_STR = [
+            (0, -1, "N"),
+            (1, 0, "E"),
+            (0, 1, "S"),
+            (-1, 0, "W"),
+        ]
+        self.__path: list[Cell] | None = None
 
     def __str__(self) -> str:
+        """Return string representation of maze in hexadecimal."""
         return "\n".join("".join(f"{c:X}" for c in row) for row in self.map_)
 
     def _init_map(self) -> map_type:
+        """Initialize maze map with all walls closed."""
         return [[0xF] * self.width for _ in range(self.height)]
 
     def _create_pattern(self) -> set[Cell]:
-        """
-        Return the set of Cell that compose the 42 pattern
-        based on the maze.
-        """
+        """Create the 42 pattern in center of maze."""
         if self.height < 10 or self.width < 10:
             return set()
 
         offset_x = self.height // 2 - 2
         offset_y = self.width // 2 - 3
 
-        # Pattern 42 absolute pos
         pattern_42_pos = [
             (0, 0),
             (1, 0),
@@ -60,12 +71,12 @@ class Maze:
         return cells
 
     def _get_neighbor(self, visited: set[Cell], curr: Cell) -> list[Cell]:
-        """Return unvisited neighbours of curr within maze bounds."""
+        """Return unvisited neighbours of current cell."""
         neighbor = [
-            Cell(curr.x, curr.y - 1),  # N
-            Cell(curr.x + 1, curr.y),  # E
-            Cell(curr.x, curr.y + 1),  # S
-            Cell(curr.x - 1, curr.y),  # O
+            Cell(curr.x, curr.y - 1),
+            Cell(curr.x + 1, curr.y),
+            Cell(curr.x, curr.y + 1),
+            Cell(curr.x - 1, curr.y),
         ]
         return [
             c
@@ -76,13 +87,15 @@ class Maze:
         ]
 
     def _create_wall(self, curr_cell: Cell, next_cell: Cell) -> None:
+        """Remove walls between two adjacent cells."""
         dx, dy = next_cell.x - curr_cell.x, next_cell.y - curr_cell.y
         bit = self._DIRS_OFFSETS.index((dx, dy))
         self.map_[curr_cell.y][curr_cell.x] &= ~(1 << bit)
         self.map_[next_cell.y][next_cell.x] &= ~(1 << (bit ^ 2))
 
     def gen(self) -> None:
-        self.map_: map_type = self._init_map()
+        """Generate maze using recursive backtracker algorithm."""
+        self.map_ = self._init_map()
         visited: set[Cell] = set()
         stack: list[Cell] = [self.entry]
         visited.add(self.entry)
@@ -100,3 +113,78 @@ class Maze:
             visited.add(next_cell)
             stack.append(next_cell)
 
+        self.__path = None
+
+    @staticmethod
+    def direction_maze(cell: int, direction: str) -> bool:
+        """Check if direction is open in cell."""
+        if direction == "N":
+            return not (cell & 1)
+        if direction == "E":
+            return not (cell & 2)
+        if direction == "S":
+            return not (cell & 4)
+        if direction == "W":
+            return not (cell & 8)
+        return False
+
+    def can_move(self, x: int, y: int, direction: str) -> bool:
+        """Check if move from current position is valid."""
+        return self.direction_maze(self.map_[y][x], direction)
+
+    def solver_back(self) -> list[Cell] | None:
+        """Find shortest path from entry to exit using BFS."""
+        end = (self.exit_.x, self.exit_.y)
+
+        queue: deque[tuple[tuple[int, int], list[Cell]]] = deque()
+        queue.append(((self.entry.x, self.entry.y), [self.entry]))
+
+        visited: set[tuple[int, int]] = set()
+        visited.add((self.entry.x, self.entry.y))
+
+        while queue:
+            node, path = queue.popleft()
+            x, y = node
+
+            if (x, y) == end:
+                return path
+
+            for dx, dy, d in self._DIRECTION_TO_STR:
+                nx, ny = x + dx, y + dy
+
+                if 0 <= nx < self.width and 0 <= ny < self.height:
+                    if self.can_move(x, y, d):
+                        if (nx, ny) not in visited:
+                            visited.add((nx, ny))
+                            queue.append(((nx, ny), path + [Cell(nx, ny)]))
+        return None
+
+    def toggle_path(self) -> None:
+        """Toggle path visibility."""
+        if self.__path is None:
+            self.__path = self.solver_back()
+        else:
+            self.__path = None
+
+    def get_path(self) -> list[Cell] | None:
+        """Return current path if visible."""
+        return self.__path
+
+    @staticmethod
+    def path_to_moves(path: list[Cell]) -> str:
+        """Convert path to string of moves."""
+        moves: str = ""
+
+        for i in range(1, len(path)):
+            x1, y1 = path[i - 1]
+            x2, y2 = path[i]
+
+            if x2 == x1 + 1:
+                moves += "E"
+            elif x2 == x1 - 1:
+                moves += "W"
+            elif y2 == y1 + 1:
+                moves += "S"
+            elif y2 == y1 - 1:
+                moves += "N"
+        return moves

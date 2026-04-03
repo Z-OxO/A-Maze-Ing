@@ -9,7 +9,7 @@ import queue
 import threading
 
 from mazegen.maze import Maze
-from src.types import Cell, DIRECTION
+from src.maze_types import Cell, DIRECTION
 
 
 class TUIRenderer:
@@ -137,7 +137,9 @@ class TUIRenderer:
         """Render warning when terminal is too narrow."""
         return Group(
             Text(""),
-            Text("⚠  terminal too narrow", justify="center", style="bold red"),
+            Text(
+                "⚠  terminal too narrow", justify="center", style="bold red"
+            ),
             Text("─" * 28, justify="center", style="dim red"),
             Text(""),
             Text(f"need   {need} cols", justify="center", style="dim"),
@@ -173,12 +175,13 @@ class TUIRenderer:
         return out
 
     def _build_row_cache(self, color: str) -> list[Text]:
-        """Build cached rows for maze rendering."""
+        """Build cached rows for maze rendering with continuous pathing."""
         W, H = self._maze.width, self._maze.height
-        path_set = set()
+
         current_path = self._maze.get_path()
-        if current_path:
-            path_set = {(c.x, c.y) for c in current_path}
+        path_set = (
+            {(c.x, c.y) for c in current_path} if current_path else set()
+        )
 
         s = {
             "wall": Style(color=color),
@@ -187,34 +190,51 @@ class TUIRenderer:
             "red": Style(color="red", bold=True),
             "path": Style(color="dark_sea_green2", blink=True),
         }
-        WALL_CELL = (self._WALL, s["wall"])
-        PATH_CELL = (self._PATH, None)
-        SOLVED_CELL = (self._PATH_MARKER, s["path"])
+
+        WALL_CELL: tuple[str, Style] = (self._WALL, s["wall"])
+        PATH_CELL: tuple[str, Style | None] = (self._PATH, None)
+        SOLVED_CELL: tuple[str, Style] = (self._PATH_MARKER, s["path"])
+        PATTERN_CELL: tuple[str, Style] = (self._WALL, s["blue"])
 
         ascii_map: list[list[tuple[str, Style | None]]] = [
             [WALL_CELL] * (2 * W + 1) for _ in range(2 * H + 1)
         ]
 
+        def get_connector_cell(
+            curr_pos: tuple[int, int], next_pos: tuple[int, int]
+        ) -> tuple[str, Style | None]:
+            if curr_pos in path_set and next_pos in path_set:
+                return SOLVED_CELL
+            return PATH_CELL
+
         for y in range(H):
             for x in range(W):
                 cell_hex: int = self._maze.map_[y][x]
-                is_path = (x, y) in path_set
+                in_path = (x, y) in path_set
 
                 if Cell(x, y) in self._maze.pattern:
-                    ascii_map[2 * y + 1][2 * x + 1] = (self._WALL, s["blue"])
-                elif is_path:
+                    ascii_map[2 * y + 1][2 * x + 1] = PATTERN_CELL
+                elif in_path:
                     ascii_map[2 * y + 1][2 * x + 1] = SOLVED_CELL
                 else:
                     ascii_map[2 * y + 1][2 * x + 1] = PATH_CELL
 
                 if not (cell_hex & DIRECTION.NORTH.value):
-                    ascii_map[2 * y][2 * x + 1] = PATH_CELL
+                    ascii_map[2 * y][2 * x + 1] = get_connector_cell(
+                        (x, y), (x, y - 1)
+                    )
                 if not (cell_hex & DIRECTION.EAST.value):
-                    ascii_map[2 * y + 1][2 * x + 2] = PATH_CELL
+                    ascii_map[2 * y + 1][2 * x + 2] = get_connector_cell(
+                        (x, y), (x + 1, y)
+                    )
                 if not (cell_hex & DIRECTION.SOUTH.value):
-                    ascii_map[2 * y + 2][2 * x + 1] = PATH_CELL
+                    ascii_map[2 * y + 2][2 * x + 1] = get_connector_cell(
+                        (x, y), (x, y + 1)
+                    )
                 if not (cell_hex & DIRECTION.OUEST.value):
-                    ascii_map[2 * y + 1][2 * x] = PATH_CELL
+                    ascii_map[2 * y + 1][2 * x] = get_connector_cell(
+                        (x, y), (x - 1, y)
+                    )
 
         ex, ey = self._maze.entry.x, self._maze.entry.y
         ascii_map[2 * ey + 1][2 * ex + 1] = (self._WALL, s["green"])

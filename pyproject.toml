@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "a-maze-ing"
+version = "0.1.0"
+description = "Maze generator and TUI"
+authors = ["Student <student@42.fr>"]
+packages = [{include = "mazegen"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+rich = "14.3.3"
+readchar = "4.2.1"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "1.20.0"
+flake8 = "7.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+exclude = ['\.venv','venv','dist']
+
