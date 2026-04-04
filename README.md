@@ -110,7 +110,33 @@ Le projet est conçu de manière modulaire :
 - **jbenhass**
     - Makefile
     - Affichage du labyrinthe
-    - correction de bug
+    - Correction de bug
+
+## 📅 Organisation du projet
+- Plan initial
+    - Parsing → 1 jour
+    - Génération → 1 jour
+    - Solver → 1 jour
+    - Affichage → 1 jour
+
+
+## ✅ Ce qui a bien fonctionné
+- Bonne répartition des tâches
+- Code modulaire
+- Communication efficace
+
+## ⚠️ Améliorations possibles
+- Améliorer la gestion des erreurs
+- Optimiser les performances
+- Ajouter une visualisation graphique
+
+## 📚 Resources
+
+
+
+
+
+
 
 
 
