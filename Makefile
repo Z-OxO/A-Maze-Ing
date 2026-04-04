@@ -15,7 +15,7 @@ debug: .venv
 	$(POETRY_RUN) python pdb a_maze_ing.py config.txt
 
 clean:
-	rm -rf .venv .mypy_cache .pytest_cache dist
+	rm -rf .venv .mypy_cache .pytest_cache dist output_maze.txt
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 lint: .venv
@@ -28,7 +28,7 @@ lint-strict: .venv
 
 build: .venv
 	poetry build
-	cp dist/mazegen-*.tar.gz .
-	cp dist/mazegen-*.whl .
+	cp -r dist/mazegen-*.tar.gz .
+	cp -r dist/mazegen-*.whl .
 
 .PHONY: install run debug clean lint lint-strict build

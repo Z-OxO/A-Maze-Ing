@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "a-maze-ing"
+name = "mazegen"
 version = "0.1.0"
 description = "Maze generator and TUI"
 authors = ["Student <jbenhass@student.42lyon.fr>", "Student <nilinott@student.42lyon.fr"]

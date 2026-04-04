@@ -9,7 +9,7 @@ class Maze:
     Generate and solve perfect mazes using recursive backtracker algorithm.
     """
 
-    def __init__(self, cfg: Config, gen_on_init=True):
+    def __init__(self, cfg: Config, gen_on_init: bool = True):
         """Initialize maze with configuration."""
         self.width: int = cfg.width
         self.height: int = cfg.height
@@ -168,7 +168,7 @@ class Maze:
         return None
 
     @staticmethod
-    def path_to_moves(path: list[Cell]) -> str:
+    def path_to_moves(path: list[Cell] | None) -> str:
         """Convert path to string of moves."""
         moves: str = ""
 
