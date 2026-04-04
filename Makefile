@@ -1,5 +1,7 @@
 POETRY_RUN = poetry run
 
+all: build
+
 .venv: pyproject.toml
 	uv tool install poetry --force
 	poetry config virtualenvs.in-project true
@@ -15,8 +17,15 @@ debug: .venv
 	$(POETRY_RUN) python pdb a_maze_ing.py config.txt
 
 clean:
-	rm -rf .venv .mypy_cache .pytest_cache dist output_maze.txt
+	rm -rf .venv .mypy_cache .pytest_cache dist
 	find . -type d -name "__pycache__" -exec rm -rf {} +
+
+fclean: clean
+	rm -rf .venv
+	rm -f *.tar.gz
+	rm -f *.whl
+
+re: fclean all
 
 lint: .venv
 	$(POETRY_RUN) flake8 . --exclude='./.venv'
