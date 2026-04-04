@@ -2,7 +2,7 @@
 name = "a-maze-ing"
 version = "0.1.0"
 description = "Maze generator and TUI"
-authors = [""]
+authors = ["Student <jbenhass@student.42lyon.fr>", "Student <nilinott@student.42lyon.fr"]
 packages = [{include = "mazegen"}]
 
 [tool.poetry.dependencies]
