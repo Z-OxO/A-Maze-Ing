@@ -24,7 +24,7 @@ Ce projet permet de travailler :
 
 ### Compilation
 ``` bash
-make
+make run
 ```
 
 ### Execution
