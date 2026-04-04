@@ -13,11 +13,15 @@ class Maze:
         """Initialize maze with configuration."""
         self.width: int = cfg.width
         self.height: int = cfg.height
-        self.map_: map_type = self._init_map()
-        self.random = Random(cfg.seed)
         self.entry = cfg.entry
         self.exit_ = cfg.exit_
+        self.output_file: str = cfg.output_file
+        self.__path: list[Cell] | None = None
+
+        self.map_: map_type = self._init_map()
         self.pattern = self._create_pattern()
+
+        self.random = Random(cfg.seed)
         self._DIRS_OFFSETS = [(0, -1), (1, 0), (0, 1), (-1, 0)]
         self._DIRECTION_TO_STR = [
             (0, -1, "N"),
@@ -25,7 +29,7 @@ class Maze:
             (0, 1, "S"),
             (-1, 0, "W"),
         ]
-        self.__path: list[Cell] | None = None
+
         if gen_on_init:
             self.gen()
 
@@ -191,7 +195,7 @@ class Maze:
 
     def generate_output(self) -> None:
         try:
-            with open("output_maze.txt", "w") as f:
+            with open(self.output_file, "w") as f:
                 f.write(f"{self.__str__()}\n\n")
                 f.write(f"{self.entry.x}.{self.entry.y}\n")
                 f.write(f"{self.exit_.x}.{self.exit_.y}\n")
