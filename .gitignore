@@ -1,1 +1,6 @@
 en.subject.pdf
+**/__pycache__/
+tests
+.vscode
+poetry.lock
+.venv
