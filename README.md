@@ -84,6 +84,37 @@ Le solver utilise BFS pour trouver le plus court chemin entre l’entrée et la 
 - Arrêt à la découverte de la sortie
 - Reconstruction du chemin
 
+## 🔁 Code réutilisable
+
+Le projet est conçu de manière modulaire :
+
+- **Parsing**
+    - Lecture et validation du fichier de configuration
+    - Réutilisable pour d’autres formats
+- **Génération (DFS)**
+    - Réutilisable pour tout système procédural
+- **Solver (BFS)**
+    - Applicable à tout problème de pathfinding
+- **Grille 2D**
+    - Structure générique utilisable dans des jeux ou simulations
+
+## 👥 Team & Project Management
+
+### Répartition des rôles
+
+- **nilinott**
+    - Parsing du fichier de configuration
+    - Implémentation du solver (BFS)
+    - Rédaction du README
+
+- **jbenhass**
+    - Makefile
+    - Affichage du labyrinthe
+    - correction de bug
+
+
+
+
 
 
 
