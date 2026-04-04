@@ -39,7 +39,6 @@ class TUIRenderer:
         self.__status: str = "Ready"
 
         self.__dirty: bool = True
-        self.__last_size: tuple[int, int] = (0, 0)
         self.__row_cache: list[Text] | None = None
         self.__cache_color: str = ""
         self.__show_path: bool = True
@@ -65,7 +64,6 @@ class TUIRenderer:
                     self.__dirty = True
                 except queue.Empty:
                     pass
-
                 size = (self._console.size.width, self._console.size.height)
                 if self.__dirty or size != self.__last_size:
                     live.update(self._build_renderable())
@@ -75,7 +73,12 @@ class TUIRenderer:
     def __read_keys(self) -> None:
         """Read keys in background thread."""
         while self.__running:
-            self.__key_queue.put(readchar.readkey())
+            try:
+                key = readchar.readkey()
+                self.__key_queue.put(key)
+            except (KeyboardInterrupt, EOFError):
+                self.__running = False
+                break
 
     def _handle_key(self, key: str) -> None:
         """Handle keyboard input."""
@@ -105,7 +108,7 @@ class TUIRenderer:
                 self.__status = (
                     f"Color -> {self._PALETTES[self.__palette_idx][1]}"
                 )
-            case "q" | "Q" | readchar.key.CTRL_C:
+            case "q" | "Q" | "\x03" | readchar.key.CTRL_C:
                 self.__running = False
 
     def _build_renderable(self) -> Panel:
@@ -254,7 +257,7 @@ class TUIRenderer:
         table = Table.grid(expand=False, padding=(0, 3))
         for _ in range(4):
             table.add_column(justify="center")
-        path_status = "Path ON" if self._maze.path else "Path OFF"
+        path_status = "Path ON" if self.__show_path else "Path OFF"
         table.add_row(
             self._key("R", "Regen", color),
             self._key("P", path_status, color),
