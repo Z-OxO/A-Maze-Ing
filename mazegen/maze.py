@@ -9,7 +9,7 @@ class Maze:
     Generate and solve perfect mazes using recursive backtracker algorithm.
     """
 
-    def __init__(self, cfg: Config):
+    def __init__(self, cfg: Config, gen_on_init=True):
         """Initialize maze with configuration."""
         self.width: int = cfg.width
         self.height: int = cfg.height
@@ -26,10 +26,17 @@ class Maze:
             (-1, 0, "W"),
         ]
         self.__path: list[Cell] | None = None
+        if gen_on_init:
+            self.gen()
 
     def __str__(self) -> str:
         """Return string representation of maze in hexadecimal."""
         return "\n".join("".join(f"{c:X}" for c in row) for row in self.map_)
+
+    @property
+    def path(self) -> list[Cell] | None:
+        """Return the solved path."""
+        return self.__path
 
     def _init_map(self) -> map_type:
         """Initialize maze map with all walls closed."""
@@ -113,7 +120,8 @@ class Maze:
             visited.add(next_cell)
             stack.append(next_cell)
 
-        self.__path = None
+        self.__path = self.solver_back()
+        self.generate_output()
 
     @staticmethod
     def direction_maze(cell: int, direction: str) -> bool:
@@ -159,21 +167,13 @@ class Maze:
                             queue.append(((nx, ny), path + [Cell(nx, ny)]))
         return None
 
-    def toggle_path(self) -> None:
-        """Toggle path visibility."""
-        if self.__path is None:
-            self.__path = self.solver_back()
-        else:
-            self.__path = None
-
-    def get_path(self) -> list[Cell] | None:
-        """Return current path if visible."""
-        return self.__path
-
     @staticmethod
     def path_to_moves(path: list[Cell]) -> str:
         """Convert path to string of moves."""
         moves: str = ""
+
+        if path is None:
+            raise ValueError("The path is not defined")
 
         for i in range(1, len(path)):
             x1, y1 = path[i - 1]
@@ -188,3 +188,13 @@ class Maze:
             elif y2 == y1 - 1:
                 moves += "N"
         return moves
+
+    def generate_output(self) -> None:
+        try:
+            with open("output_maze.txt", "w") as f:
+                f.write(f"{self.__str__()}\n\n")
+                f.write(f"{self.entry.x}.{self.entry.y}\n")
+                f.write(f"{self.exit_.x}.{self.exit_.y}\n")
+                f.write(f"{self.path_to_moves(self.__path)}")
+        except ValueError as e:
+            print(f"Failed to write maze to output file: {e}")
