@@ -42,6 +42,7 @@ class TUIRenderer:
         self.__last_size: tuple[int, int] = (0, 0)
         self.__row_cache: list[Text] | None = None
         self.__cache_color: str = ""
+        self.__show_path: bool = True
 
         self.__key_queue: queue.Queue[str] = queue.Queue()
 
@@ -86,10 +87,9 @@ class TUIRenderer:
                 self.__row_cache = None
                 self.__status = "New maze generated"
             case "p" | "P":
-                self._maze.toggle_path()
+                self.__show_path = not self.__show_path
                 self.__row_cache = None
-                path = self._maze.get_path()
-                self.__status = "Path ON" if path else "Path OFF"
+                self.__status = "Path ON" if self.__show_path else "Path OFF"
             case "w" | "W" | readchar.key.UP:
                 self.__v_offset = max(0, self.__v_offset - 1)
             case "s" | "S" | readchar.key.DOWN:
@@ -178,7 +178,7 @@ class TUIRenderer:
         """Build cached rows for maze rendering with continuous pathing."""
         W, H = self._maze.width, self._maze.height
 
-        current_path = self._maze.get_path()
+        current_path = self._maze.path if self.__show_path else None
         path_set = (
             {(c.x, c.y) for c in current_path} if current_path else set()
         )
@@ -254,7 +254,7 @@ class TUIRenderer:
         table = Table.grid(expand=False, padding=(0, 3))
         for _ in range(4):
             table.add_column(justify="center")
-        path_status = "Path ON" if self._maze.get_path() else "Path OFF"
+        path_status = "Path ON" if self._maze.path else "Path OFF"
         table.add_row(
             self._key("R", "Regen", color),
             self._key("P", path_status, color),
