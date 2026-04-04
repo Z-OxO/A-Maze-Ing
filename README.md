@@ -110,6 +110,7 @@ Le projet est conçu de manière modulaire :
 - **jbenhass**
     - Makefile
     - Affichage du labyrinthe
+    - main
     - Correction de bug
 
 ## 📅 Organisation du projet
@@ -126,30 +127,26 @@ Le projet est conçu de manière modulaire :
 - Communication efficace
 
 ## ⚠️ Améliorations possibles
-- Améliorer la gestion des erreurs
 - Optimiser les performances
 - Ajouter une visualisation graphique
 
+## 🛠️ Outils utilisés
+
+- Git / GitHub -> Gestion de version
+- VsCode -> Developpement
+- Mypy -> Verification du Typing
+
 ## 📚 Resources
 
+ - https://en.wikipedia.org/wiki/Breadth-first_search
+ - aide de mes camarades (Peer learning)
 
+ ## 🤖 Utilisation de l’IA
 
+- L’IA a été utilisée pour :
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    - Clarifier les concepts de BFS
+    - Aider au debug de certaines parties
+    - Structurer la documentation (Readme)
 
 
