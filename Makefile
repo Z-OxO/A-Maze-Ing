@@ -9,10 +9,10 @@ POETRY_RUN = poetry run
 install: .venv
 
 run: .venv
-	$(POETRY_RUN) python -m tests.test
+	$(POETRY_RUN) python a_maze_ing.py config.txt
 
 debug: .venv
-	$(POETRY_RUN) python -m pdb a_maze_ing.py config.txt
+	$(POETRY_RUN) python pdb a_maze_ing.py config.txt
 
 clean:
 	rm -rf .venv .mypy_cache .pytest_cache dist
