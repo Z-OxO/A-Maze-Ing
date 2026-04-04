@@ -22,15 +22,15 @@ Ce projet permet de travailler :
 
 ## ⚙️ Instructions
 
-### Compilation
+### Run (Installation des dépendances)
 ``` bash
 make run
 ```
 
-### Execution
+### Build (Compilation)
 
 ``` bash
-python3 a_maze_ing.py <fichier de configuration>
+make build
 ```
 
 ## 🧩  Structure du fichier de configuration
@@ -105,11 +105,14 @@ Le projet est conçu de manière modulaire :
 - **nilinott**
     - Parsing du fichier de configuration
     - Implémentation du solver (BFS)
+    - Main
+    - Correction de bug / norme
     - Rédaction du README
 
 - **jbenhass**
     - Makefile
-    - Affichage du labyrinthe
+    - Affichage du labyrinthe (TUI)
+    - Implémentation du generateur (DFS)
     - main
     - Correction de bug
 
@@ -119,6 +122,7 @@ Le projet est conçu de manière modulaire :
     - Génération → 1 jour
     - Solver → 1 jour
     - Affichage → 1 jour
+    - Correction de bug / Norme - 1 jour
 
 
 ## ✅ Ce qui a bien fonctionné
