@@ -1,7 +1,7 @@
 import sys
 
 from src.tui_render import TUIRenderer
-from src.conf import Config
+from mazegen import Config
 from mazegen import Maze
 
 
