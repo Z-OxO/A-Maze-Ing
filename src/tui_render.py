@@ -8,8 +8,8 @@ from rich.text import Text
 import queue
 import threading
 
-from mazegen.maze import Maze
-from src.maze_types import Cell, DIRECTION
+from mazegen import Maze
+from mazegen import Cell, DIRECTION
 
 
 class TUIRenderer:

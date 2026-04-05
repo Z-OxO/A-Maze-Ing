@@ -1,5 +1,5 @@
 from random import Random
-from src.maze_types import Cell, map_type
+from .maze_types import Cell, map_type
 from .conf import Config
 from collections import deque
 

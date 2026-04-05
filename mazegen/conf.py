@@ -1,4 +1,4 @@
-from src.maze_types import Cell
+from .maze_types import Cell
 
 
 class Config:
