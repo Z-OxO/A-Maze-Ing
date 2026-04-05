@@ -41,7 +41,7 @@ class TUIRenderer:
         self.__dirty: bool = True
         self.__row_cache: list[Text] | None = None
         self.__cache_color: str = ""
-        self.__show_path: bool = True
+        self.__show_path: bool = False
 
         self.__key_queue: queue.Queue[str] = queue.Queue()
 
